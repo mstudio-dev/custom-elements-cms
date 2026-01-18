@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Element;
 use App\Entity\ElementType;
+use App\Entity\Page;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
@@ -27,6 +28,7 @@ class DashboardController extends AbstractDashboardController
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToCrud('Seiten', 'fa fa-file-alt', Page::class);
         yield MenuItem::linkToCrud('Element Types', 'fa fa-puzzle-piece', ElementType::class);
         yield MenuItem::linkToCrud('Elements', 'fa fa-list', Element::class);
     }

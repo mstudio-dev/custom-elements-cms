@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\ElementRepository;
+use App\Repository\PageRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -14,7 +15,7 @@ class PageController extends AbstractController
     public function index(ElementRepository $elementRepository, Environment $twig): Response
     {
         $elements = $elementRepository->findBy(
-            ['published' => true],
+            ['published' => true, 'page' => null],
             ['sorting' => 'ASC']
         );
 
@@ -32,6 +33,38 @@ class PageController extends AbstractController
         }
 
         return $this->render('page/index.html.twig', [
+            'elements' => $renderedElements,
+        ]);
+    }
+
+    #[Route('/{slug}', name: 'page_show', requirements: ['slug' => '[a-z0-9\-]+'])]
+    public function show(string $slug, PageRepository $pageRepository, Environment $twig): Response
+    {
+        $page = $pageRepository->findOneBy(['slug' => $slug, 'published' => true]);
+
+        if (!$page) {
+            throw $this->createNotFoundException('Seite nicht gefunden');
+        }
+
+        // Elemente der Seite mit gerendertem Template vorbereiten
+        $renderedElements = [];
+        foreach ($page->getElements() as $element) {
+            if (!$element->isPublished()) {
+                continue;
+            }
+            
+            $template = $element->getElementType()->getTemplate();
+            if ($template) {
+                $renderedHtml = $twig->createTemplate($template)->render(['data' => $element->getData()]);
+                $renderedElements[] = [
+                    'type' => $element->getElementType()->getName(),
+                    'html' => $renderedHtml
+                ];
+            }
+        }
+
+        return $this->render('page/show.html.twig', [
+            'page' => $page,
             'elements' => $renderedElements,
         ]);
     }

@@ -17,11 +17,18 @@ class Element
     #[ORM\JoinColumn(nullable: false)]
     private ?ElementType $elementType = null;
 
+    #[ORM\ManyToOne(inversedBy: 'elements')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Page $page = null;
+
     #[ORM\Column(type: 'json')]
     private array $data = [];
 
     #[ORM\Column]
     private ?int $sorting = 0;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $pageSorting = null;
 
     #[ORM\Column]
     private ?bool $published = false;
@@ -69,6 +76,28 @@ class Element
     public function setSorting(int $sorting): self
     {
         $this->sorting = $sorting;
+        return $this;
+    }
+
+    public function getPageSorting(): ?int
+    {
+        return $this->pageSorting;
+    }
+
+    public function setPageSorting(?int $pageSorting): self
+    {
+        $this->pageSorting = $pageSorting;
+        return $this;
+    }
+
+    public function getPage(): ?Page
+    {
+        return $this->page;
+    }
+
+    public function setPage(?Page $page): self
+    {
+        $this->page = $page;
         return $this;
     }
 
