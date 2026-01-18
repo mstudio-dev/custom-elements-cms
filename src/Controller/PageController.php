@@ -12,8 +12,10 @@ use Twig\Environment;
 class PageController extends AbstractController
 {
     #[Route('/', name: 'homepage')]
-    public function index(ElementRepository $elementRepository, Environment $twig): Response
+    public function index(ElementRepository $elementRepository, PageRepository $pageRepository, Environment $twig): Response
     {
+        $pages = $pageRepository->findBy(['published' => true], ['title' => 'ASC']);
+        
         $elements = $elementRepository->findBy(
             ['published' => true, 'page' => null],
             ['sorting' => 'ASC']
@@ -34,12 +36,14 @@ class PageController extends AbstractController
 
         return $this->render('page/index.html.twig', [
             'elements' => $renderedElements,
+            'pages' => $pages,
         ]);
     }
 
     #[Route('/{slug}', name: 'page_show', requirements: ['slug' => '[a-z0-9\-]+'])]
     public function show(string $slug, PageRepository $pageRepository, Environment $twig): Response
     {
+        $pages = $pageRepository->findBy(['published' => true], ['title' => 'ASC']);
         $page = $pageRepository->findOneBy(['slug' => $slug, 'published' => true]);
 
         if (!$page) {
@@ -66,6 +70,7 @@ class PageController extends AbstractController
         return $this->render('page/show.html.twig', [
             'page' => $page,
             'elements' => $renderedElements,
+            'pages' => $pages,
         ]);
     }
 }

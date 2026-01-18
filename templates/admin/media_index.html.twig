@@ -1,0 +1,27 @@
+{% extends '@!EasyAdmin/crud/index.html.twig' %}
+
+{% block head_javascript %}
+    {{ parent() }}
+    <script src="{{ asset('admin-media-dragdrop.js') }}"></script>
+{% endblock %}
+
+{% block content_header_wrapper %}
+    {{ parent() }}
+    
+    {# Breadcrumb Navigation #}
+    {% if app.request.query.get('filters') and app.request.query.get('filters')['parent'] is defined %}
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ ea_url().unset('filters') }}">📁 Root</a>
+                </li>
+                {# Hier könnten weitere Breadcrumb-Levels eingefügt werden #}
+                <li class="breadcrumb-item active" aria-current="page">Aktueller Ordner</li>
+            </ol>
+        </nav>
+    {% endif %}
+{% endblock %}
+
+{% block table_body %}
+    {{ parent() }}
+{% endblock %}

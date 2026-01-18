@@ -63,10 +63,45 @@
             color: #667eea;
             margin-bottom: 15px;
         }
+        
+        .main-navigation {
+            background: #f8f9fa;
+            padding: 15px 0;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+        
+        .main-navigation ul {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .main-navigation a {
+            color: #333;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .main-navigation a:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .main-navigation a.active {
+            background: #764ba2;
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        {% include '_navigation.html.twig' %}
         {% for element in elements %}
             <div class="element element-{{ element.type }}">
                 {{ element.html|raw }}

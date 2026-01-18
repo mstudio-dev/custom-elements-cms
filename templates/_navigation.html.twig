@@ -1,0 +1,18 @@
+{# templates/_navigation.html.twig #}
+<nav class="main-navigation">
+    <ul>
+        <li>
+            <a href="{{ path('homepage') }}" class="{{ app.request.get('_route') == 'homepage' ? 'active' : '' }}">
+                Home
+            </a>
+        </li>
+        {% for page in pages %}
+            <li>
+                <a href="{{ path('page_show', {'slug': page.slug}) }}" 
+                   class="{{ app.request.get('_route') == 'page_show' and app.request.get('slug') == page.slug ? 'active' : '' }}">
+                    {{ page.title }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+</nav>

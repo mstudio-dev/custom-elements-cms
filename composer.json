@@ -22,7 +22,8 @@
         "symfony/twig-bundle": "6.4.*",
         "symfony/validator": "6.4.*",
         "symfony/yaml": "6.4.*",
-        "twig/string-extra": "^3.22"
+        "twig/string-extra": "^3.22",
+        "vich/uploader-bundle": "^2.9"
     },
     "config": {
         "allow-plugins": {

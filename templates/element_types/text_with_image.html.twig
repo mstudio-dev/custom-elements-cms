@@ -1,0 +1,80 @@
+{# Template für Element Type: Text mit Bild #}
+{% set imagePosition = data.image_position ?? 'left' %}
+{% set imageId = data.image_id ?? null %}
+
+<div class="text-image-element {{ imagePosition == 'right' ? 'image-right' : 'image-left' }}">
+    {% if data.headline %}
+        <h2 class="element-headline">{{ data.headline }}</h2>
+    {% endif %}
+    {% if imageId %}
+        <div class="element-image">
+            {# Bildpfad aus der Media-ID ermitteln #}
+            {# In der Praxis würde hier der Media-Service das Bild laden #}
+            <img src="/admin?crudAction=detail&crudControllerFqcn=App\\Controller\\Admin\\MediaCrudController&entityId={{ imageId }}" 
+                 alt="{{ data.alt_text ?? 'Bild' }}"
+                 loading="lazy"
+                 onerror="this.src='/uploads/placeholder.jpg'">
+        </div>
+    {% endif %}
+    
+    <div class="element-text">
+        {{ data.text | nl2br | raw }}
+    </div>
+</div>
+
+<style>
+.text-image-element {
+    display: flex;
+    gap: 2rem;
+    margin: 2rem 0;
+    align-items: flex-start;
+}
+
+.text-image-element.image-right {
+    flex-direction: row-reverse;
+}
+
+.text-image-element.image-left {
+    flex-direction: row;
+}
+
+.element-image {
+    flex: 0 0 40%;
+}
+
+.element-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.element-text {
+    flex: 1;
+    line-height: 1.6;
+}
+
+.element-headline {
+    width: 100%;
+    margin: 0 0 1.5rem 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.element-text p {
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .text-image-element,
+    .text-image-element.image-right {
+        flex-direction: column;
+    }
+    
+    .element-image {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+}
+</style>
