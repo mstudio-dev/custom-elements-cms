@@ -4,18 +4,10 @@ namespace App\EventListener;
 
 use App\Entity\Element;
 use App\Entity\Media;
-use App\Form\ElementDataType;
 use App\Repository\MediaRepository;
-use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeCrudActionEvent;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityPersistedEvent;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityUpdatedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 
 class ElementFormSubscriber implements EventSubscriberInterface
 {
@@ -27,15 +19,42 @@ class ElementFormSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            BeforeCrudActionEvent::class => 'onBeforeCrudAction',
+            BeforeEntityPersistedEvent::class => 'beforePersist',
+            BeforeEntityUpdatedEvent::class => 'beforeUpdate',
         ];
     }
 
-    public function onBeforeCrudAction(BeforeCrudActionEvent $event): void
+    public function beforePersist(BeforeEntityPersistedEvent $event): void
     {
-        // In EasyAdmin 4.x ist getAsDto() nicht mehr verfügbar
-        // Die dynamischen Felder werden über ElementDataType gehandhabt
-        // EventSubscriber vorerst deaktiviert
-        return;
+        $entity = $event->getEntityInstance();
+        if (!$entity instanceof Element) {
+            return;
+        }
+
+        $this->processElementData($entity);
+    }
+
+    public function beforeUpdate(BeforeEntityUpdatedEvent $event): void
+    {
+        $entity = $event->getEntityInstance();
+        if (!$entity instanceof Element) {
+            return;
+        }
+
+        $this->processElementData($entity);
+    }
+
+    private function processElementData(Element $element): void
+    {
+        $elementType = $element->getElementType();
+        if (!$elementType) {
+            return;
+        }
+
+        $fields = $elementType->getFields();
+        $request = $element->getData(); // Temporär aus dem Form-Data
+        
+        // Die Daten sind bereits korrekt vom Form gesetzt
+        // Hier könnten wir zusätzliche Validierung oder Transformationen vornehmen
     }
 }

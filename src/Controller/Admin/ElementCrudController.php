@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Element;
+use App\Form\ElementDataType;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -42,10 +43,15 @@ class ElementCrudController extends AbstractCrudController
         
         yield FormField::addPanel('Inhalte')->setIcon('fa fa-edit')->onlyOnForms();
         
-        yield TextareaField::new('dataJson', 'Daten')
-            ->setHelp('Die Daten als JSON. Format: {"feldname": "wert", "image": 123}. Für Bilder bitte die Media-ID verwenden.')
-            ->setFormTypeOption('attr', ['rows' => 10])
-            ->hideOnIndex();
+        // Dynamische Felder basierend auf ElementType
+        yield FormField::addFieldset('Elementdaten')
+            ->setFormType(ElementDataType::class)
+            ->onlyOnForms();
+        
+        // JSON-Fallback nur auf Index-Seite anzeigen
+        yield TextareaField::new('dataJson', 'Daten (JSON)')
+            ->onlyOnIndex()
+            ->setMaxLength(100);
         
         yield FormField::addPanel('Einstellungen')->setIcon('fa fa-cog');
         yield IntegerField::new('sorting', 'Globale Sortierung')

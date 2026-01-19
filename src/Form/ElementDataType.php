@@ -9,6 +9,8 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -23,64 +25,99 @@ class ElementDataType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
-            $element = $event->getData();
-            $form = $event->getForm()->getParent();
+        /** @var Element $element */
+        $element = $options['data'];
+        
+        if (!$element || !$element->getElementType()) {
+            return;
+        }
 
-            if (!$form || !$element instanceof Element || !$element->getElementType()) {
+        $fieldDefinitions = $element->getElementType()->getFields();
+        $data = $element->getData();
+
+        foreach ($fieldDefinitions as $field) {
+            $fieldName = $field['name'];
+            $fieldType = $field['type'] ?? 'text';
+            $label = $field['label'] ?? ucfirst($fieldName);
+            $required = $field['required'] ?? false;
+
+            switch ($fieldType) {
+                case 'image':
+                case 'media':
+                    $builder->add($fieldName, EntityType::class, [
+                        'class' => Media::class,
+                        'choice_label' => function (Media $media) {
+                            return $media->getFilename() . ' (' . $media->getTitle() . ')';
+                        },
+                        'label' => $label,
+                        'required' => $required,
+                        'placeholder' => '-- Bitte wählen --',
+                        'mapped' => false,
+                        'data' => isset($data[$fieldName]) ? $this->mediaRepository->find($data[$fieldName]) : null,
+                    ]);
+                    break;
+
+                case 'textarea':
+                    $builder->add($fieldName, TextareaType::class, [
+                        'label' => $label,
+                        'required' => $required,
+                        'mapped' => false,
+                        'data' => $data[$fieldName] ?? '',
+                        'attr' => ['rows' => 8],
+                    ]);
+                    break;
+
+                case 'checkbox':
+                case 'boolean':
+                    $builder->add($fieldName, CheckboxType::class, [
+                        'label' => $label,
+                        'required' => false,
+                        'mapped' => false,
+                        'data' => $data[$fieldName] ?? false,
+                    ]);
+                    break;
+
+                case 'text':
+                default:
+                    $builder->add($fieldName, TextType::class, [
+                        'label' => $label,
+                        'required' => $required,
+                        'mapped' => false,
+                        'data' => $data[$fieldName] ?? '',
+                    ]);
+                    break;
+            }
+        }
+
+        // Form-Submit Handler
+        $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($fieldDefinitions) {
+            $element = $event->getData();
+            $form = $event->getForm();
+            
+            if (!$element instanceof Element) {
                 return;
             }
 
-            $fieldDefinitions = $element->getElementType()->getFieldDefinitions();
-            $data = $element->getData();
-
+            $data = [];
             foreach ($fieldDefinitions as $field) {
-                $fieldName = 'data_' . $field['name'];
-                $fieldType = $field['type'];
-                $label = $field['label'] ?? ucfirst($field['name']);
-                $required = $field['required'] ?? false;
-
-                if ($form->has($fieldName)) {
+                $fieldName = $field['name'];
+                $fieldType = $field['type'] ?? 'text';
+                
+                if (!$form->has($fieldName)) {
                     continue;
                 }
 
-                switch ($fieldType) {
-                    case 'image':
-                    case 'media':
-                        $form->add($fieldName, EntityType::class, [
-                            'class' => Media::class,
-                            'choice_label' => function (Media $media) {
-                                return $media->getFilename() . ' (' . $media->getTitle() . ')';
-                            },
-                            'label' => $label,
-                            'required' => $required,
-                            'placeholder' => '-- Bitte wählen --',
-                            'mapped' => false,
-                            'data' => isset($data[$field['name']]) ? $this->mediaRepository->find($data[$field['name']]) : null,
-                        ]);
-                        break;
-
-                    case 'textarea':
-                        $form->add($fieldName, TextareaType::class, [
-                            'label' => $label,
-                            'required' => $required,
-                            'mapped' => false,
-                            'data' => $data[$field['name']] ?? '',
-                            'attr' => ['rows' => 8],
-                        ]);
-                        break;
-
-                    case 'text':
-                    default:
-                        $form->add($fieldName, TextType::class, [
-                            'label' => $label,
-                            'required' => $required,
-                            'mapped' => false,
-                            'data' => $data[$field['name']] ?? '',
-                        ]);
-                        break;
+                $fieldData = $form->get($fieldName)->getData();
+                
+                // Media-Felder: Nur die ID speichern
+                if (($fieldType === 'image' || $fieldType === 'media') && $fieldData instanceof Media) {
+                    $data[$fieldName] = $fieldData->getId();
+                } else {
+                    $data[$fieldName] = $fieldData;
                 }
             }
+            
+            $element->setData($data);
         });
     }
 
