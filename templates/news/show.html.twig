@@ -2,6 +2,34 @@
 
 {% block title %}{{ news.title }} - Custom Elements CMS{% endblock %}
 
+{% block meta_description %}{{ news.effectiveMetaDescription }}{% endblock %}
+
+{% block meta_tags %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  "headline": "{{ news.effectiveMetaTitle|e('js') }}",
+  "description": "{{ news.effectiveMetaDescription|e('js') }}",
+  "datePublished": "{{ news.publishedAt|date('c') }}",
+  "dateModified": "{{ news.createdAt|date('c') }}",
+  {% if news.author %}
+  "author": {
+    "@type": "Person",
+    "name": "{{ news.author|e('js') }}"
+  },
+  {% endif %}
+  {% if images is not empty and images[0] and images[0].path %}
+  "image": "{{ absolute_url('/uploads/' ~ images[0].path) }}",
+  {% endif %}
+  "publisher": {
+    "@type": "Organization",
+    "name": "Custom Elements CMS"
+  }
+}
+</script>
+{% endblock %}
+
 {% block body %}
 <div class="container my-5">
     <article>
