@@ -24,6 +24,12 @@ class Page
     #[ORM\Column]
     private ?bool $published = false;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $metaTitle = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $metaDescription = null;
+
     #[ORM\OneToMany(mappedBy: 'page', targetEntity: Element::class)]
     #[ORM\OrderBy(['pageSorting' => 'ASC'])]
     private Collection $elements;
@@ -107,6 +113,33 @@ class Page
     public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function getMetaTitle(): ?string
+    {
+        return $this->metaTitle;
+    }
+
+    public function setMetaTitle(?string $metaTitle): static
+    {
+        $this->metaTitle = $metaTitle;
+        return $this;
+    }
+
+    public function getMetaDescription(): ?string
+    {
+        return $this->metaDescription;
+    }
+
+    public function setMetaDescription(?string $metaDescription): static
+    {
+        $this->metaDescription = $metaDescription;
+        return $this;
+    }
+
+    public function getEffectiveMetaTitle(): string
+    {
+        return $this->metaTitle ?? $this->title ?? '';
     }
 
     public function __toString(): string

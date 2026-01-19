@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}News - Custom Elements CMS{% endblock %}
+
+{% block body %}
+<div class="container my-5">
+    <h1 class="mb-4">News</h1>
+
+    {% if featured is not empty %}
+        <section class="mb-5">
+            <h2 class="h3 mb-3">Aktuelle Highlights</h2>
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for news in featured %}
+                    <div class="col">
+                        <article class="card h-100">
+                            {% if news.firstImageId and images[news.id] is defined %}
+                                <img src="/uploads/{{ images[news.id].path }}" class="card-img-top" alt="{{ news.title }}" loading="lazy">
+                            {% endif %}
+                            <div class="card-body">
+                                <span class="badge bg-primary mb-2">Highlight</span>
+                                <h3 class="card-title h5">
+                                    <a href="{{ path('news_show', {slug: news.slug}) }}" class="text-decoration-none">{{ news.title }}</a>
+                                </h3>
+                                <p class="card-text">{{ news.getTeaser(150) }}</p>
+                                <div class="text-muted small">
+                                    <time datetime="{{ news.publishedAt|date('Y-m-d') }}">{{ news.publishedAt|date('d.m.Y') }}</time>
+                                    {% if news.author %}<span class="ms-2">{{ news.author }}</span>{% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <section>
+        {% if featured is not empty %}<h2 class="h4 mb-3">Alle News</h2>{% endif %}
+        <div class="row g-3">
+            {% for news in news_list %}
+                <div class="col-12">
+                    <article class="card">
+                        <div class="row g-0">
+                            {% if news.firstImageId and images[news.id] is defined %}
+                                <div class="col-md-4">
+                                    <a href="{{ path('news_show', {slug: news.slug}) }}">
+                                        <img src="/uploads/{{ images[news.id].path }}" class="img-fluid rounded-start h-100 object-fit-cover" alt="{{ news.title }}" loading="lazy">
+                                    </a>
+                                </div>
+                            {% endif %}
+                            <div class="{{ news.firstImageId and images[news.id] is defined ? 'col-md-8' : 'col-12' }}">
+                                <div class="card-body">
+                                    <h3 class="card-title h5">
+                                        <a href="{{ path('news_show', {slug: news.slug}) }}" class="text-decoration-none">{{ news.title }}</a>
+                                    </h3>
+                                    <p class="card-text">{{ news.getTeaser(200) }}</p>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <time datetime="{{ news.publishedAt|date('Y-m-d') }}">{{ news.publishedAt|date('d.m.Y') }}</time>
+                                        </small>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <p class="mb-0">Keine News vorhanden.</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

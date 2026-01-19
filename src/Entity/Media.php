@@ -236,6 +236,44 @@ class Media
         return $this->mimeType && str_starts_with($this->mimeType, 'image/');
     }
 
+    public function getIcon(): string
+    {
+        if ($this->isFolder()) {
+            return '📁';
+        }
+
+        if ($this->isImage()) {
+            return '🖼️';
+        }
+
+        return match (true) {
+            str_contains($this->mimeType ?? '', 'pdf') => '📄',
+            str_contains($this->mimeType ?? '', 'video') => '🎬',
+            str_contains($this->mimeType ?? '', 'audio') => '🎵',
+            str_contains($this->mimeType ?? '', 'zip') || str_contains($this->mimeType ?? '', 'archive') => '📦',
+            str_contains($this->mimeType ?? '', 'word') || str_contains($this->mimeType ?? '', 'document') => '📝',
+            str_contains($this->mimeType ?? '', 'excel') || str_contains($this->mimeType ?? '', 'spreadsheet') => '📊',
+            default => '📄'
+        };
+    }
+
+    public function getFilename(): string
+    {
+        return $this->name ?? 'Unbenannt';
+    }
+
+    public function getTitle(): string
+    {
+        return $this->alt ?? $this->name ?? 'Unbenannt';
+    }
+
+    public function getUsageInfo(): string
+    {
+        // TODO: Implementierung für Verwendungsnachweis
+        // Kann später erweitert werden um zu zeigen, wo das Medium verwendet wird
+        return '';
+    }
+
     public function getFullPath(): string
     {
         $parts = [];

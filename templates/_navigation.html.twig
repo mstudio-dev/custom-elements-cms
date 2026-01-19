@@ -1,18 +1,29 @@
 {# templates/_navigation.html.twig #}
-<nav class="main-navigation">
-    <ul>
-        <li>
-            <a href="{{ path('homepage') }}" class="{{ app.request.get('_route') == 'homepage' ? 'active' : '' }}">
-                Home
-            </a>
-        </li>
-        {% for page in pages %}
-            <li>
-                <a href="{{ path('page_show', {'slug': page.slug}) }}" 
-                   class="{{ app.request.get('_route') == 'page_show' and app.request.get('slug') == page.slug ? 'active' : '' }}">
-                    {{ page.title }}
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{{ path('homepage') }}">CMS</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link {{ app.request.get('_route') == 'homepage' ? 'active' : '' }}" 
+                       {% if app.request.get('_route') == 'homepage' %}aria-current="page"{% endif %}
+                       href="{{ path('homepage') }}">
+                        Home
+                    </a>
+                </li>
+                {% for page in pages %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ app.request.get('_route') == 'page_show' and app.request.get('slug') == page.slug ? 'active' : '' }}" 
+                           {% if app.request.get('_route') == 'page_show' and app.request.get('slug') == page.slug %}aria-current="page"{% endif %}
+                           href="{{ path('page_show', {'slug': page.slug}) }}">
+                            {{ page.title }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </nav>

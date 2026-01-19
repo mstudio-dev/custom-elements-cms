@@ -1,0 +1,223 @@
+{# Template für Element Type: News-Liste #}
+{% set limit = data.limit ?? 5 %}
+{% set showFeatured = data.show_featured ?? false %}
+
+{# News-Daten laden über Twig Extension #}
+{% set newsList = get_published_news(limit) %}
+{% set featuredList = showFeatured ? get_featured_news(3) : [] %}
+
+<div class="embedded-news-list">
+    {% if featuredList is not empty %}
+        <section class="featured-news-section">
+            <h3>Aktuelle Highlights</h3>
+            <div class="news-grid">
+                {% for news in featuredList %}
+                    <article class="news-card">
+                        {% if news.firstImageId %}
+                            <div class="news-image">
+                                <a href="{{ path('news_show', {slug: news.slug}) }}">
+                                    <img src="/uploads/{{ news.firstImageId }}" alt="{{ news.title }}" loading="lazy">
+                                </a>
+                            </div>
+                        {% endif %}
+                        <div class="news-content">
+                            <h4><a href="{{ path('news_show', {slug: news.slug}) }}">{{ news.title }}</a></h4>
+                            <time datetime="{{ news.publishedAt|date('Y-m-d') }}">{{ news.publishedAt|date('d.m.Y') }}</time>
+                            <p>{{ news.getTeaser(150) }}</p>
+                            <a href="{{ path('news_show', {slug: news.slug}) }}" class="read-more">Weiterlesen →</a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <section class="news-list-section">
+        <div class="news-items">
+            {% for news in newsList %}
+                <article class="news-item-compact">
+                    {% if news.firstImageId %}
+                        <div class="news-thumb">
+                            <a href="{{ path('news_show', {slug: news.slug}) }}">
+                                <img src="/uploads/{{ news.firstImageId }}" alt="{{ news.title }}" loading="lazy">
+                            </a>
+                        </div>
+                    {% endif %}
+                    <div class="news-info">
+                        <h4><a href="{{ path('news_show', {slug: news.slug}) }}">{{ news.title }}</a></h4>
+                        <time datetime="{{ news.publishedAt|date('Y-m-d') }}">{{ news.publishedAt|date('d.m.Y') }}</time>
+                        <p>{{ news.getTeaser(200) }}</p>
+                        <a href="{{ path('news_show', {slug: news.slug}) }}" class="read-more">Mehr lesen →</a>
+                    </div>
+                </article>
+            {% else %}
+                <p>Keine News verfügbar.</p>
+            {% endfor %}
+        </div>
+        
+        <div class="news-archive-link">
+            <a href="{{ path('news_index') }}" class="btn-primary">Alle News anzeigen</a>
+        </div>
+    </section>
+</div>
+
+<style>
+.embedded-news-list {
+    margin: 2rem 0;
+}
+
+.featured-news-section h3,
+.news-list-section h3 {
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.news-card {
+    background: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.news-image img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.news-content {
+    padding: 1rem;
+}
+
+.news-content h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+}
+
+.news-content h4 a {
+    color: #333;
+    text-decoration: none;
+}
+
+.news-content h4 a:hover {
+    color: #0066cc;
+}
+
+.news-content time {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.news-content p {
+    margin: 0.5rem 0;
+    line-height: 1.5;
+    color: #555;
+}
+
+.news-items {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.news-item-compact {
+    display: flex;
+    gap: 1rem;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.news-thumb {
+    flex: 0 0 120px;
+}
+
+.news-thumb img {
+    width: 100%;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.news-info {
+    flex: 1;
+}
+
+.news-info h4 {
+    margin: 0 0 0.3rem 0;
+    font-size: 1.1rem;
+}
+
+.news-info h4 a {
+    color: #333;
+    text-decoration: none;
+}
+
+.news-info h4 a:hover {
+    color: #0066cc;
+}
+
+.news-info time {
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.news-info p {
+    margin: 0.5rem 0;
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.read-more {
+    color: #0066cc;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.read-more:hover {
+    text-decoration: underline;
+}
+
+.news-archive-link {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.btn-primary {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    background: #0066cc;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.btn-primary:hover {
+    background: #0052a3;
+}
+
+@media (max-width: 768px) {
+    .news-item-compact {
+        flex-direction: column;
+    }
+    
+    .news-thumb {
+        flex: 0 0 auto;
+        width: 100%;
+    }
+    
+    .news-thumb img {
+        height: 150px;
+    }
+}
+</style>

@@ -3,12 +3,14 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Element;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 
 class ElementCrudController extends AbstractCrudController
 {
@@ -17,21 +19,43 @@ class ElementCrudController extends AbstractCrudController
         return Element::class;
     }
 
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setEntityLabelInSingular('Element')
+            ->setEntityLabelInPlural('Elemente')
+            ->setDefaultSort(['sorting' => 'ASC'])
+            ->setSearchFields(['id', 'elementType.name'])
+            ->setPageTitle('index', 'Elemente verwalten');
+    }
+
     public function configureFields(string $pageName): iterable
     {
-        return [
-            IdField::new('id')->hideOnForm(),
-            AssociationField::new('page', 'Seite')
-                ->setHelp('Seite, der dieses Element zugeordnet ist (optional, leer = Startseite)'),
-            AssociationField::new('elementType', 'Element Typ'),
-            TextareaField::new('dataJson', 'Daten (JSON)')
-                ->setHelp('Die Daten entsprechend der Feld-Definitionen des Element-Typs')
-                ->setFormTypeOption('attr', ['rows' => 10]),
-            IntegerField::new('sorting', 'Globale Sortierung')
-                ->setHelp('Sortierung auf der Startseite (für Elemente ohne Seite)'),
-            IntegerField::new('pageSorting', 'Seiten-Sortierung')
-                ->setHelp('Sortierung innerhalb der zugeordneten Seite'),
-            BooleanField::new('published', 'Veröffentlicht'),
-        ];
+        yield IdField::new('id')->hideOnForm();
+        
+        yield AssociationField::new('elementType', 'Element Typ')
+            ->setRequired(true)
+            ->setHelp('Typ des Inhaltselements');
+        
+        yield AssociationField::new('page', 'Seite')
+            ->setHelp('Seite, der dieses Element zugeordnet ist (optional, leer = Startseite)');
+        
+        yield FormField::addPanel('Inhalte')->setIcon('fa fa-edit')->onlyOnForms();
+        
+        yield TextareaField::new('dataJson', 'Daten')
+            ->setHelp('Die Daten als JSON. Format: {"feldname": "wert", "image": 123}. Für Bilder bitte die Media-ID verwenden.')
+            ->setFormTypeOption('attr', ['rows' => 10])
+            ->hideOnIndex();
+        
+        yield FormField::addPanel('Einstellungen')->setIcon('fa fa-cog');
+        yield IntegerField::new('sorting', 'Globale Sortierung')
+            ->setHelp('Sortierung auf der Startseite (für Elemente ohne Seite)')
+            ->setColumns(6);
+        
+        yield IntegerField::new('pageSorting', 'Seiten-Sortierung')
+            ->setHelp('Sortierung innerhalb der zugeordneten Seite')
+            ->setColumns(6);
+        
+        yield BooleanField::new('published', 'Veröffentlicht');
     }
 }

@@ -1,0 +1,113 @@
+// Admin Styles
+
+// Media Drag & Drop
+.media-upload-area {
+    border: 2px dashed $secondary;
+    border-radius: $border-radius;
+    padding: 3rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    
+    &:hover,
+    &.dragover {
+        border-color: $primary;
+        background-color: lighten($primary, 45%);
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+        color: $secondary;
+        margin-bottom: 1rem;
+    }
+    
+    .upload-text {
+        color: $secondary;
+        font-size: 1.1rem;
+    }
+}
+
+// Media Grid
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.media-item {
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: $border-radius;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+    }
+    
+    .media-info {
+        padding: 0.5rem;
+        background: white;
+        font-size: 0.85rem;
+        
+        .media-name {
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .media-size {
+            color: $secondary;
+            font-size: 0.75rem;
+        }
+    }
+    
+    .media-checkbox {
+        position: absolute;
+        top: 0.5rem;
+        left: 0.5rem;
+        
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+    }
+}
+
+// Folder Structure
+.folder-tree {
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-radius: $border-radius;
+    padding: 1rem;
+    background: white;
+    
+    .folder-item {
+        padding: 0.5rem;
+        cursor: pointer;
+        border-radius: $border-radius-sm;
+        
+        &:hover {
+            background: $light;
+        }
+        
+        &.active {
+            background: lighten($primary, 45%);
+            color: $primary;
+            font-weight: 600;
+        }
+        
+        .folder-icon {
+            margin-right: 0.5rem;
+        }
+    }
+}

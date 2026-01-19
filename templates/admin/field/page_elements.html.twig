@@ -1,0 +1,14 @@
+{% if field.value is iterable and field.value is not empty %}
+    <ul class="list-unstyled mb-0">
+        {% for element in field.value %}
+            <li class="mb-1">
+                <span class="badge bg-secondary">{{ element.elementType.name }}</span>
+                {% if element.sorting is defined %}
+                    <small class="text-muted">Position: {{ element.sorting }}</small>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <span class="text-muted">Keine Elemente zugeordnet</span>
+{% endif %}

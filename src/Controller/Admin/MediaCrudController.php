@@ -42,9 +42,13 @@ class MediaCrudController extends AbstractCrudController
         return $crud
             ->setEntityLabelInSingular('Medium')
             ->setEntityLabelInPlural('Mediathek')
-            ->setDefaultSort(['type' => 'DESC', 'name' => 'ASC'])
-            ->setSearchFields(['name', 'description', 'alt', 'mimeType'])
+            ->setDefaultSort(['type' => 'DESC', 'uploadedAt' => 'DESC'])
+            ->setSearchFields(['name', 'description', 'alt', 'mimeType', 'path'])
+            ->setPaginatorPageSize(30)
             ->showEntityActionsInlined()
+            ->setPageTitle('index', 'Mediathek')
+            ->setPageTitle('new', 'Medium hochladen')
+            ->setPageTitle('edit', 'Medium bearbeiten')
             ->overrideTemplate('crud/index', 'admin/media_index.html.twig');
     }
 
@@ -54,9 +58,15 @@ class MediaCrudController extends AbstractCrudController
             ->linkToCrudAction('moveToFolder')
             ->displayAsLink()
             ->setCssClass('btn btn-sm btn-info');
+        
+        $batchMove = Action::new('batchMoveToFolder', 'Ausgewählte verschieben')
+            ->linkToCrudAction('batchMoveToFolder')
+            ->addCssClass('btn btn-primary')
+            ->setIcon('fa fa-folder-open');
 
         return $actions
-            ->add(Crud::PAGE_INDEX, $moveToFolder);
+            ->add(Crud::PAGE_INDEX, $moveToFolder)
+            ->addBatchAction($batchMove);
     }
 
     public function configureFilters(Filters $filters): Filters
@@ -66,7 +76,15 @@ class MediaCrudController extends AbstractCrudController
                 'Ordner' => 'folder',
                 'Datei' => 'file'
             ]))
-            ->add(EntityFilter::new('parent', 'Übergeordneter Ordner'));
+            ->add(EntityFilter::new('parent', 'Übergeordneter Ordner'))
+            ->add(ChoiceFilter::new('mimeType', 'Dateityp')->setChoices([
+                'Bilder (JPG/PNG)' => 'image/jpeg|image/png',
+                'PDFs' => 'application/pdf',
+                'Videos' => 'video/mp4|video/mpeg',
+                'Dokumente' => 'application/msword|application/vnd.openxmlformats-officedocument',
+            ]))
+            ->add('uploadedAt', 'Hochgeladen')
+            ->add('size', 'Dateigröße');
     }
 
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
@@ -178,14 +196,16 @@ class MediaCrudController extends AbstractCrudController
             ->hideOnForm();
 
         yield TextField::new('name', 'Name')
-            ->setRequired(true);
-        
-        yield TextField::new('type', 'Typ')
-            ->formatValue(function ($value) {
-                return $value === 'folder' ? '📁 Ordner' : '📄 Datei';
+            ->setRequired(true)
+            ->formatValue(function ($value, $entity) {
+                return $entity->getIcon() . ' ' . $entity->getName();
             })
-            ->onlyOnIndex();
-
+            ->hideOnForm();
+        
+        yield TextField::new('name', 'Dateiname')
+            ->setRequired(true)
+            ->onlyOnForms();
+        
         yield ChoiceField::new('type', 'Typ')
             ->setChoices([
                 'Datei' => 'file',

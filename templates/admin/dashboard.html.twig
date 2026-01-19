@@ -1,13 +1,167 @@
 {% extends '@EasyAdmin/page/content.html.twig' %}
 
 {% block content_title %}
-    <h1>Custom Elements CMS</h1>
+    <h1 class="mb-0">Dashboard</h1>
+    <p class="text-muted">Willkommen im Custom Elements CMS</p>
 {% endblock %}
 
 {% block main %}
-    <p>Willkommen im Custom Elements CMS Backend!</p>
-    <ul>
-        <li><strong>Element Types:</strong> Definiere neue Element-Typen mit eigenen Feldern</li>
-        <li><strong>Elements:</strong> Erstelle Instanzen deiner Element-Typen</li>
-    </ul>
+    <div class="row">
+        <!-- Seiten Statistik -->
+        <div class="col-md-3 mb-4">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Seiten</h6>
+                            <h2 class="mb-0">{{ stats.pages_total }}</h2>
+                            <small class="text-success">{{ stats.pages_published }} veröffentlicht</small>
+                        </div>
+                        <div class="text-primary" style="font-size: 2.5rem;">
+                            <i class="fa fa-file-alt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- News Statistik -->
+        <div class="col-md-3 mb-4">
+            <div class="card border-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">News</h6>
+                            <h2 class="mb-0">{{ stats.news_total }}</h2>
+                            <small class="text-success">{{ stats.news_published }} veröffentlicht</small>
+                        </div>
+                        <div class="text-info" style="font-size: 2.5rem;">
+                            <i class="fa fa-newspaper"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Media Statistik -->
+        <div class="col-md-3 mb-4">
+            <div class="card border-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Mediathek</h6>
+                            <h2 class="mb-0">{{ stats.media_total }}</h2>
+                            <small class="text-muted">Dateien</small>
+                        </div>
+                        <div class="text-warning" style="font-size: 2.5rem;">
+                            <i class="fa fa-folder-open"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Statistik -->
+        <div class="col-md-3 mb-4">
+            <div class="card border-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Benutzer</h6>
+                            <h2 class="mb-0">{{ stats.users_total }}</h2>
+                            <small class="text-muted">Registriert</small>
+                        </div>
+                        <div class="text-success" style="font-size: 2.5rem;">
+                            <i class="fa fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Schnellzugriff -->
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fa fa-bolt"></i> Schnellzugriff</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ ea_url().setController('App\\Controller\\Admin\\PageCrudController').setAction('new') }}" class="btn btn-outline-primary btn-lg w-100">
+                                <i class="fa fa-plus-circle"></i> Neue Seite erstellen
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ ea_url().setController('App\\Controller\\Admin\\NewsCrudController').setAction('new') }}" class="btn btn-outline-info btn-lg w-100">
+                                <i class="fa fa-plus-circle"></i> Neue News erstellen
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ ea_url().setController('App\\Controller\\Admin\\MediaCrudController').setAction('index') }}" class="btn btn-outline-warning btn-lg w-100">
+                                <i class="fa fa-upload"></i> Medien hochladen
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="{{ ea_url().setController('App\\Controller\\Admin\\UserCrudController').setAction('new') }}" class="btn btn-outline-success btn-lg w-100">
+                                <i class="fa fa-user-plus"></i> Neuer Benutzer
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Systeminfo -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fa fa-info-circle"></i> System</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <strong>Elements:</strong> {{ stats.elements_total }}
+                        </li>
+                        <li class="mb-2">
+                            <strong>CMS Version:</strong> 1.0.0
+                        </li>
+                        <li class="mb-2">
+                            <strong>Angemeldet als:</strong><br>
+                            <span class="badge bg-primary">{{ app.user.username }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hilfe und Dokumentation -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fa fa-question-circle"></i> Erste Schritte</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6><i class="fa fa-puzzle-piece text-primary"></i> Element Types</h6>
+                            <p class="small">Definiere wiederverwend bare Bausteine mit eigenen Feldern und Templates.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fa fa-list text-info"></i> Elements</h6>
+                            <p class="small">Erstelle Instanzen deiner Element-Typen und weise sie Seiten zu.</p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6><i class="fa fa-folder-open text-warning"></i> Mediathek</h6>
+                            <p class="small">Verwalte Bilder und Dateien mit Ordner-Struktur und Batch-Operationen.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

@@ -1,0 +1,64 @@
+// Custom Element Styles
+
+.custom-element {
+    margin-bottom: 2rem;
+}
+
+// Text with Image Element
+.element-text-with-image {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    
+    &.image-left {
+        flex-direction: row;
+    }
+    
+    &.image-right {
+        flex-direction: row-reverse;
+    }
+    
+    .element-image {
+        flex: 0 0 40%;
+        
+        img {
+            width: 100%;
+            height: auto;
+            border-radius: $border-radius;
+        }
+    }
+    
+    .element-text {
+        flex: 1;
+        
+        h3 {
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            line-height: 1.7;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        flex-direction: column !important;
+        
+        .element-image {
+            flex: 0 0 100%;
+        }
+    }
+}
+
+// Element Container
+.element-container {
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: $border-radius;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    
+    &.highlighted {
+        border-left: 4px solid $primary;
+        background: lighten($primary, 45%);
+    }
+}

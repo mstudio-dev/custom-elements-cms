@@ -1,0 +1,45 @@
+// Base Layout Styles
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+// Navigation
+nav {
+    background-color: $dark;
+    padding: 1rem 0;
+    
+    a {
+        color: $light;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        
+        &:hover {
+            color: $primary;
+        }
+        
+        &.active {
+            color: $primary;
+            font-weight: 600;
+        }
+    }
+}
+
+// Footer
+footer {
+    background-color: $light;
+    padding: 2rem 0;
+    margin-top: 4rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
