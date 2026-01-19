@@ -100,5 +100,14 @@ Element:
 
 # ElementType
 ElementType:
+    name: 'Elementtyp|Elementtypen'
+    label: 'Elementtyp'
+
+# Element Types
+element_type:
+    accordion: 'Accordion'
+
+# ElementType
+ElementType:
     name: 'Element-Typ|Element-Typen'
     label: 'Element-Typ'

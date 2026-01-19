@@ -1,0 +1,37 @@
+{# Template für Element Type: Accordion #}
+{% set items = data.items ?? [] %}
+{% set keepOpen = data.keep_open ?? false %}
+{% set accordionId = 'accordion-' ~ random() %}
+
+{% if items is not empty %}
+<div class="accordion-element my-4">
+    {% if data.headline %}
+        <h2 class="element-headline mb-3">{{ data.headline }}</h2>
+    {% endif %}
+    
+    <div class="accordion {% if not keepOpen %}accordion-flush{% endif %}" id="{{ accordionId }}">
+        {% for item in items %}
+            {% set itemId = accordionId ~ '-item-' ~ loop.index %}
+            <div class="accordion-item">
+                <h3 class="accordion-header">
+                    <button class="accordion-button {% if loop.index > 1 %}collapsed{% endif %}" 
+                            type="button" 
+                            data-bs-toggle="collapse" 
+                            data-bs-target="#{{ itemId }}" 
+                            aria-expanded="{% if loop.index == 1 %}true{% else %}false{% endif %}" 
+                            aria-controls="{{ itemId }}">
+                        {{ item.title }}
+                    </button>
+                </h3>
+                <div id="{{ itemId }}" 
+                     class="accordion-collapse collapse {% if loop.index == 1 %}show{% endif %}" 
+                     {% if not keepOpen %}data-bs-parent="#{{ accordionId }}"{% endif %}>
+                    <div class="accordion-body">
+                        {{ item.content | nl2br | raw }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
