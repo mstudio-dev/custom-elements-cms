@@ -11,8 +11,13 @@
   "@type": "NewsArticle",
   "headline": "{{ news.effectiveMetaTitle|e('js') }}",
   "description": "{{ news.effectiveMetaDescription|e('js') }}",
+  "articleBody": "{{ news.content|striptags|e('js') }}",
   "datePublished": "{{ news.publishedAt|date('c') }}",
   "dateModified": "{{ news.createdAt|date('c') }}",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ absolute_url(path('news_show', {slug: news.slug})) }}"
+  },
   {% if news.author %}
   "author": {
     "@type": "Person",
@@ -20,11 +25,20 @@
   },
   {% endif %}
   {% if images is not empty and images[0] and images[0].path %}
-  "image": "{{ absolute_url('/uploads/' ~ images[0].path) }}",
+  "image": {
+    "@type": "ImageObject",
+    "url": "{{ absolute_url('/uploads/' ~ images[0].path) }}",
+    "width": 1200,
+    "height": 630
+  },
   {% endif %}
   "publisher": {
     "@type": "Organization",
-    "name": "Custom Elements CMS"
+    "name": "Custom Elements CMS",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ absolute_url('/favicon.ico') }}"
+    }
   }
 }
 </script>
