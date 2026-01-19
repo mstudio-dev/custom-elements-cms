@@ -34,10 +34,16 @@ class PageController extends AbstractController
             }
         }
 
-        return $this->render('page/index.html.twig', [
+        $response = $this->render('page/index.html.twig', [
             'elements' => $renderedElements,
             'pages' => $pages,
         ]);
+        
+        // Cache for 1 hour
+        $response->setSharedMaxAge(3600);
+        $response->headers->addCacheControlDirective('must-revalidate', true);
+        
+        return $response;
     }
 
     #[Route('/{slug}', name: 'page_show', requirements: ['slug' => '[a-z0-9\-]+'])]
@@ -67,10 +73,16 @@ class PageController extends AbstractController
             }
         }
 
-        return $this->render('page/show.html.twig', [
+        $response = $this->render('page/show.html.twig', [
             'page' => $page,
             'elements' => $renderedElements,
             'pages' => $pages,
         ]);
+        
+        // Cache for 1 hour
+        $response->setSharedMaxAge(3600);
+        $response->headers->addCacheControlDirective('must-revalidate', true);
+        
+        return $response;
     }
 }

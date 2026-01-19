@@ -27,11 +27,17 @@ class NewsController extends AbstractController
             }
         }
 
-        return $this->render('news/index.html.twig', [
+        $response = $this->render('news/index.html.twig', [
             'news_list' => $newsList,
             'featured' => $featured,
             'images' => $images,
         ]);
+        
+        // Cache for 30 minutes (news changes more frequently)
+        $response->setSharedMaxAge(1800);
+        $response->headers->addCacheControlDirective('must-revalidate', true);
+        
+        return $response;
     }
 
     #[Route('/news/{slug}', name: 'news_show')]
@@ -54,9 +60,15 @@ class NewsController extends AbstractController
             }
         }
 
-        return $this->render('news/show.html.twig', [
+        $response = $this->render('news/show.html.twig', [
             'news' => $news,
             'images' => $images,
         ]);
+        
+        // Cache for 1 hour (articles rarely change after publication)
+        $response->setSharedMaxAge(3600);
+        $response->headers->addCacheControlDirective('must-revalidate', true);
+        
+        return $response;
     }
 }
