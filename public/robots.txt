@@ -1,0 +1,17 @@
+# robots.txt for Custom Elements CMS
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: /sitemap.xml
+
+# Disallow admin area
+Disallow: /admin
+Disallow: /login
+
+# Disallow uploads directory (images should be linked, not crawled)
+Disallow: /uploads/
+
+# Disallow bundles and assets
+Disallow: /bundles/
