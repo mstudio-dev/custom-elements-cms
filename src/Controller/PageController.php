@@ -26,7 +26,7 @@ class PageController extends AbstractController
         foreach ($elements as $element) {
             $template = $element->getElementType()->getTemplate();
             if ($template) {
-                $renderedHtml = $twig->createTemplate($template)->render(['data' => $element->getData()]);
+                $renderedHtml = $twig->render('element_types/' . $template, ['data' => $element->getData()]);
                 $renderedElements[] = [
                     'type' => $element->getElementType()->getName(),
                     'html' => $renderedHtml
@@ -65,7 +65,7 @@ class PageController extends AbstractController
             
             $template = $element->getElementType()->getTemplate();
             if ($template) {
-                $renderedHtml = $twig->createTemplate($template)->render(['data' => $element->getData()]);
+                $renderedHtml = $twig->render('element_types/' . $template, ['data' => $element->getData()]);
                 $renderedElements[] = [
                     'type' => $element->getElementType()->getName(),
                     'html' => $renderedHtml
