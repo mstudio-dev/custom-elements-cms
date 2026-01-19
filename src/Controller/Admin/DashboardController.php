@@ -7,11 +7,13 @@ use App\Entity\ElementType;
 use App\Entity\Media;
 use App\Entity\News;
 use App\Entity\Page;
+use App\Entity\Person;
 use App\Entity\User;
 use App\Repository\ElementRepository;
 use App\Repository\MediaRepository;
 use App\Repository\NewsRepository;
 use App\Repository\PageRepository;
+use App\Repository\PersonRepository;
 use App\Repository\UserRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
@@ -28,6 +30,7 @@ class DashboardController extends AbstractDashboardController
         private NewsRepository $newsRepository,
         private MediaRepository $mediaRepository,
         private ElementRepository $elementRepository,
+        private PersonRepository $personRepository,
         private UserRepository $userRepository
     ) {
     }
@@ -43,6 +46,8 @@ class DashboardController extends AbstractDashboardController
             'news_published' => $this->newsRepository->count(['status' => 'published']),
             'media_total' => $this->mediaRepository->count([]),
             'elements_total' => $this->elementRepository->count([]),
+            'persons_total' => $this->personRepository->count([]),
+            'persons_published' => $this->personRepository->count(['published' => true]),
             'users_total' => $this->userRepository->count([]),
         ];
 
@@ -62,6 +67,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
         yield MenuItem::linkToCrud('Seiten', 'fa fa-file-alt', Page::class);
         yield MenuItem::linkToCrud('News', 'fa fa-newspaper', News::class);
+        yield MenuItem::linkToCrud('Personen', 'fa fa-user', Person::class);
         yield MenuItem::linkToCrud('Mediathek', 'fa fa-folder-open', Media::class);
         yield MenuItem::linkToCrud('Element Types', 'fa fa-puzzle-piece', ElementType::class);
         yield MenuItem::linkToCrud('Elements', 'fa fa-list', Element::class);

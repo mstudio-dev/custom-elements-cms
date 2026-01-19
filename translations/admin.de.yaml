@@ -69,6 +69,11 @@ News:
     name: 'News|News'
     label: 'News'
 
+# Person
+Person:
+    name: 'Person|Personen'
+    label: 'Person'
+
 # Media
 Media:
     name: 'Medium|Medien'
