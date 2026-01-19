@@ -1,0 +1,23 @@
+{# Template für Element Type: Text Image #}
+{% set imagePosition = data.image_position ?? 'left' %}
+{% set imageId = data.image_id ?? null %}
+
+<div class="text-image-element {{ imagePosition == 'right' ? 'image-right' : 'image-left' }}">
+    {% if data.headline %}
+        <h2 class="element-headline">{{ data.headline }}</h2>
+    {% endif %}
+    {% if imageId %}
+        <div class="element-image">
+            {# Bildpfad aus der Media-ID ermitteln #}
+            {# In der Praxis würde hier der Media-Service das Bild laden #}
+            <img src="/admin?crudAction=detail&crudControllerFqcn=App\\Controller\\Admin\\MediaCrudController&entityId={{ imageId }}" 
+                 alt="{{ data.alt_text ?? 'Bild' }}"
+                 loading="lazy"
+                 onerror="this.src='/uploads/placeholder.jpg'">
+        </div>
+    {% endif %}
+    
+    <div class="element-text">
+        {{ data.text | nl2br | raw }}
+    </div>
+</div>
