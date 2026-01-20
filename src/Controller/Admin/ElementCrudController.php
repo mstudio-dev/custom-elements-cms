@@ -6,6 +6,7 @@ use App\Entity\Element;
 use App\Entity\Media;
 use App\Form\ElementDataType;
 use App\Repository\MediaRepository;
+use App\Repository\FormRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
@@ -22,7 +23,8 @@ use Symfony\Component\Form\FormEvents;
 class ElementCrudController extends AbstractCrudController
 {
     public function __construct(
-        private MediaRepository $mediaRepository
+        private MediaRepository $mediaRepository,
+        private FormRepository $formRepository
     ) {}
     
     public static function getEntityFqcn(): string
@@ -120,6 +122,15 @@ class ElementCrudController extends AbstractCrudController
                             if (isset($field['choices']) && is_array($field['choices'])) {
                                 // Format: {"value": "Label"} oder einfaches Array
                                 $choices = $field['choices'];
+                            }
+                            
+                            // Spezialfall: form_id -> Dropdown mit verfügbaren Formularen
+                            if ($field['name'] === 'form_id') {
+                                $forms = $this->formRepository->findAll();
+                                $choices = [];
+                                foreach ($forms as $form) {
+                                    $choices[$form->getName()] = $form->getId();
+                                }
                             }
                             
                             yield ChoiceField::new($fieldName, $fieldLabel)

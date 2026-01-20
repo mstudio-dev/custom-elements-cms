@@ -4,6 +4,8 @@ namespace App\Controller\Admin;
 
 use App\Entity\Element;
 use App\Entity\ElementType;
+use App\Entity\Form;
+use App\Entity\FormSubmission;
 use App\Entity\Media;
 use App\Entity\News;
 use App\Entity\Page;
@@ -104,6 +106,10 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Mediathek', 'fa fa-folder-open', Media::class);
         yield MenuItem::linkToCrud('Element Types', 'fa fa-puzzle-piece', ElementType::class);
         yield MenuItem::linkToCrud('Elements', 'fa fa-list', Element::class);
+        
+        yield MenuItem::section('Formulare');
+        yield MenuItem::linkToCrud('Formulare', 'fa fa-envelope', Form::class);
+        yield MenuItem::linkToCrud('Einsendungen', 'fa fa-inbox', FormSubmission::class);
         
         yield MenuItem::section('Benutzerverwaltung');
         yield MenuItem::linkToCrud('Users', 'fa fa-users', User::class);
