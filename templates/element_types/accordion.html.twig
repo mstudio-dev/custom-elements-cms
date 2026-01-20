@@ -1,7 +1,16 @@
 {# Template für Element Type: Accordion #}
-{% set items = data.items ?? [] %}
 {% set keepOpen = data.keep_open ?? false %}
 {% set accordionId = 'accordion-' ~ random() %}
+
+{# Sammle alle Items die einen Titel haben #}
+{% set items = [] %}
+{% for i in 1..5 %}
+    {% set title = attribute(data, 'item' ~ i ~ '_title') %}
+    {% set content = attribute(data, 'item' ~ i ~ '_content') %}
+    {% if title %}
+        {% set items = items|merge([{'title': title, 'content': content}]) %}
+    {% endif %}
+{% endfor %}
 
 {% if items is not empty %}
 <div class="accordion-element my-4">

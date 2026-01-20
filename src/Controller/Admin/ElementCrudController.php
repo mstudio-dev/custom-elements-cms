@@ -3,18 +3,28 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Element;
+use App\Entity\Media;
 use App\Form\ElementDataType;
+use App\Repository\MediaRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
+use Symfony\Component\Form\Event\PreSubmitEvent;
+use Symfony\Component\Form\FormEvents;
 
 class ElementCrudController extends AbstractCrudController
 {
+    public function __construct(
+        private MediaRepository $mediaRepository
+    ) {}
+    
     public static function getEntityFqcn(): string
     {
         return Element::class;
@@ -43,12 +53,102 @@ class ElementCrudController extends AbstractCrudController
         
         yield FormField::addPanel('Inhalte')->setIcon('fa fa-edit')->onlyOnForms();
         
-        // Dynamische Felder basierend auf ElementType
-        yield FormField::addFieldset('Elementdaten')
-            ->setFormType(ElementDataType::class)
-            ->onlyOnForms();
+        // JSON Textarea als Fallback (wird ausgeblendet wenn dynamische Felder verfügbar)
+        $showJsonFallback = true;
         
-        // JSON-Fallback nur auf Index-Seite anzeigen
+        // Dynamische Felder basierend auf ElementType
+        if ($pageName === Crud::PAGE_EDIT || $pageName === Crud::PAGE_NEW) {
+            $entity = $this->getContext()->getEntity()->getInstance();
+            if ($entity instanceof Element && $entity->getElementType()) {
+                $showJsonFallback = false;
+                $fieldDefinitions = $entity->getElementType()->getFields();
+                $data = $entity->getData();
+                
+                foreach ($fieldDefinitions as $field) {
+                    $fieldName = 'data_' . $field['name'];
+                    $fieldLabel = $field['label'] ?? $field['name'];
+                    $fieldType = $field['type'] ?? 'text';
+                    
+                    switch ($fieldType) {
+                        case 'image':
+                        case 'media':
+                            $mediaId = $data[$field['name']] ?? null;
+                            $allMedia = $this->mediaRepository->findBy(['type' => 'file'], ['name' => 'ASC']);
+                            
+                            $choices = [];
+                            foreach ($allMedia as $media) {
+                                $label = $media->getFilename();
+                                if ($media->getParent()) {
+                                    $label = $media->getParent()->getName() . '/' . $label;
+                                }
+                                $choices[$label] = $media->getId();
+                            }
+                            
+                            yield ChoiceField::new($fieldName, $fieldLabel)
+                                ->setChoices($choices)
+                                ->setFormTypeOption('mapped', false)
+                                ->setFormTypeOption('data', $mediaId)
+                                ->setFormTypeOption('placeholder', '- Keine Auswahl -')
+                                ->setRequired(false);
+                            break;
+                            
+                        case 'richtext':
+                            yield TextareaField::new($fieldName, $fieldLabel)
+                                ->setFormTypeOption('mapped', false)
+                                ->setFormTypeOption('data', $data[$field['name']] ?? '')
+                                ->setFormTypeOption('attr', ['data-richtext' => 'true'])
+                                ->setRequired(false);
+                            break;
+                            
+                        case 'textarea':
+                            yield TextareaField::new($fieldName, $fieldLabel)
+                                ->setFormTypeOption('mapped', false)
+                                ->setFormTypeOption('data', $data[$field['name']] ?? '')
+                                ->setRequired(false);
+                            break;
+                            
+                        case 'checkbox':
+                        case 'boolean':
+                            yield BooleanField::new($fieldName, $fieldLabel)
+                                ->setFormTypeOption('mapped', false)
+                                ->setFormTypeOption('data', $data[$field['name']] ?? false)
+                                ->setRequired(false);
+                            break;
+                            
+                        case 'choice':
+                            $choices = [];
+                            if (isset($field['choices']) && is_array($field['choices'])) {
+                                // Format: {"value": "Label"} oder einfaches Array
+                                $choices = $field['choices'];
+                            }
+                            
+                            yield ChoiceField::new($fieldName, $fieldLabel)
+                                ->setChoices($choices)
+                                ->setFormTypeOption('mapped', false)
+                                ->setFormTypeOption('data', $data[$field['name']] ?? null)
+                                ->setFormTypeOption('placeholder', '- Bitte wählen -')
+                                ->setRequired($field['required'] ?? false);
+                            break;
+                            
+                        case 'text':
+                        default:
+                            yield TextField::new($fieldName, $fieldLabel)
+                                ->setFormTypeOption('mapped', false)
+                                ->setFormTypeOption('data', $data[$field['name']] ?? '')
+                                ->setRequired(false);
+                            break;
+                    }
+                }
+            }
+        }
+        
+        // Fallback JSON-Textarea wenn kein ElementType vorhanden
+        if ($showJsonFallback && ($pageName === Crud::PAGE_EDIT || $pageName === Crud::PAGE_NEW)) {
+            yield TextareaField::new('dataJson', 'Daten (JSON)')
+                ->setHelp('JSON-Editor - wähle zuerst einen Element-Typ für individuelle Felder');
+        }
+        
+        // Kompakte JSON-Ansicht in der Übersicht
         yield TextareaField::new('dataJson', 'Daten (JSON)')
             ->onlyOnIndex()
             ->setMaxLength(100);

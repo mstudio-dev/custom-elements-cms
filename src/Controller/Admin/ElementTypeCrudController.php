@@ -37,7 +37,10 @@ class ElementTypeCrudController extends AbstractCrudController
             TextField::new('label', 'Anzeigename'),
             TextareaField::new('fieldsJson', 'Felder (JSON)')
                 ->setHelp('JSON-Definition der Formularfelder')
-                ->setFormTypeOption('attr', ['rows' => 10]),
+                ->setFormTypeOption('attr', [
+                    'rows' => 20,
+                    'style' => 'font-family: monospace; font-size: 14px;'
+                ]),
             ChoiceField::new('template', 'Template-Datei')
                 ->setChoices($templates)
                 ->setHelp('Wähle eine Template-Datei aus templates/element_types/')

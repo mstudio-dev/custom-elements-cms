@@ -3,16 +3,17 @@
 namespace App\EventListener;
 
 use App\Entity\Element;
-use App\Entity\Media;
 use App\Repository\MediaRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityPersistedEvent;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityUpdatedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 class ElementFormSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private MediaRepository $mediaRepository
+        private MediaRepository $mediaRepository,
+        private RequestStack $requestStack
     ) {
     }
 
@@ -51,10 +52,31 @@ class ElementFormSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $fields = $elementType->getFields();
-        $request = $element->getData(); // Temporär aus dem Form-Data
+        $request = $this->requestStack->getCurrentRequest();
+        if (!$request) {
+            return;
+        }
+
+        $fieldDefinitions = $elementType->getFields();
+        $form = $request->request->all()['Element'] ?? [];
         
-        // Die Daten sind bereits korrekt vom Form gesetzt
-        // Hier könnten wir zusätzliche Validierung oder Transformationen vornehmen
+        $data = [];
+        foreach ($fieldDefinitions as $field) {
+            $fieldName = 'data_' . $field['name'];
+            if (isset($form[$fieldName])) {
+                $value = $form[$fieldName];
+                
+                // Bei Media-Feldern die ID als Integer speichern
+                if (($field['type'] === 'image' || $field['type'] === 'media') && $value) {
+                    $data[$field['name']] = (int) $value;
+                } elseif ($field['type'] === 'checkbox' || $field['type'] === 'boolean') {
+                    $data[$field['name']] = (bool) $value;
+                } else {
+                    $data[$field['name']] = $value;
+                }
+            }
+        }
+        
+        $element->setData($data);
     }
 }
