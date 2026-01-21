@@ -52,8 +52,7 @@ class ElementCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
         $duplicate = Action::new('duplicate', 'Duplizieren', 'fa fa-copy')
-            ->linkToCrudAction('duplicateElement')
-            ->setCssClass('btn btn-secondary');
+            ->linkToCrudAction('duplicateElement');
 
         return $actions
             ->add(Crud::PAGE_INDEX, $duplicate)
@@ -181,6 +180,23 @@ class ElementCrudController extends AbstractCrudController
                                 ->setFormTypeOption('mapped', false)
                                 ->setFormTypeOption('data', $data[$field['name']] ?? null)
                                 ->setFormTypeOption('placeholder', '- Bitte wählen -')
+                                ->setRequired($field['required'] ?? false);
+                            break;
+                            
+                        case 'image_size':
+                            $imageSizeChoices = [
+                                'Klein (300x300)' => 'thumb_small',
+                                'Mittel (600x600)' => 'thumb_medium',
+                                'Groß (1200x800)' => 'thumb_large',
+                                'Original (WebP)' => 'original_webp',
+                                'Admin Thumbnail (150x150)' => 'admin_thumb',
+                            ];
+                            
+                            yield ChoiceField::new($fieldName, $fieldLabel)
+                                ->setChoices($imageSizeChoices)
+                                ->setFormTypeOption('mapped', false)
+                                ->setFormTypeOption('data', $data[$field['name']] ?? 'thumb_medium')
+                                ->setHelp('Wähle die Bildgröße für die Anzeige')
                                 ->setRequired($field['required'] ?? false);
                             break;
                             
