@@ -8,7 +8,12 @@ use App\Form\ElementDataType;
 use App\Repository\MediaRepository;
 use App\Repository\FormRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
@@ -24,7 +29,9 @@ class ElementCrudController extends AbstractCrudController
 {
     public function __construct(
         private MediaRepository $mediaRepository,
-        private FormRepository $formRepository
+        private FormRepository $formRepository,
+        private EntityManagerInterface $entityManager,
+        private AdminUrlGenerator $adminUrlGenerator
     ) {}
     
     public static function getEntityFqcn(): string
@@ -40,6 +47,42 @@ class ElementCrudController extends AbstractCrudController
             ->setDefaultSort(['sorting' => 'ASC'])
             ->setSearchFields(['id', 'elementType.name'])
             ->setPageTitle('index', 'Elemente verwalten');
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $duplicate = Action::new('duplicate', 'Duplizieren', 'fa fa-copy')
+            ->linkToCrudAction('duplicateElement')
+            ->setCssClass('btn btn-secondary');
+
+        return $actions
+            ->add(Crud::PAGE_INDEX, $duplicate)
+            ->add(Crud::PAGE_DETAIL, $duplicate);
+    }
+
+    public function duplicateElement(): RedirectResponse
+    {
+        $originalElement = $this->getContext()->getEntity()->getInstance();
+        
+        $newElement = new Element();
+        $newElement->setElementType($originalElement->getElementType());
+        $newElement->setPage($originalElement->getPage());
+        $newElement->setData($originalElement->getData());
+        $newElement->setSorting($originalElement->getSorting() + 1);
+        $newElement->setActive($originalElement->isActive());
+        
+        $this->entityManager->persist($newElement);
+        $this->entityManager->flush();
+        
+        $this->addFlash('success', 'Element wurde erfolgreich dupliziert.');
+        
+        $url = $this->adminUrlGenerator
+            ->setController(self::class)
+            ->setAction(Action::EDIT)
+            ->setEntityId($newElement->getId())
+            ->generateUrl();
+        
+        return new RedirectResponse($url);
     }
 
     public function configureFields(string $pageName): iterable

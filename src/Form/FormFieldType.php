@@ -20,12 +20,14 @@ class FormFieldType extends AbstractType
             ->add('name', TextType::class, [
                 'label' => 'Technischer Name',
                 'help' => 'Interner Name (z.B. "email", "message")',
-                'attr' => ['placeholder' => 'email']
+                'attr' => ['placeholder' => 'email'],
+                'required' => true
             ])
             ->add('label', TextType::class, [
                 'label' => 'Anzeige-Label',
                 'help' => 'Wird dem Nutzer angezeigt',
-                'attr' => ['placeholder' => 'E-Mail-Adresse']
+                'attr' => ['placeholder' => 'E-Mail-Adresse'],
+                'required' => true
             ])
             ->add('type', ChoiceType::class, [
                 'label' => 'Feldtyp',
@@ -37,6 +39,7 @@ class FormFieldType extends AbstractType
                     'Auswahl (Select)' => 'select',
                     'Checkbox' => 'checkbox',
                 ],
+                'required' => true
             ])
             ->add('required', CheckboxType::class, [
                 'label' => 'Pflichtfeld',

@@ -5,6 +5,8 @@ namespace App\Controller\Admin;
 use App\Entity\News;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\BooleanFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFilter;
@@ -16,9 +18,17 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ArrayField;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class NewsCrudController extends AbstractCrudController
 {
+    public function __construct(
+        private EntityManagerInterface $entityManager,
+        private AdminUrlGenerator $adminUrlGenerator
+    ) {
+    }
     public static function getEntityFqcn(): string
     {
         return News::class;
@@ -33,6 +43,51 @@ class NewsCrudController extends AbstractCrudController
             ->setDefaultSort(['publishedAt' => 'DESC'])
             ->setPaginatorPageSize(20)
             ->showEntityActionsInlined();
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        $duplicate = Action::new('duplicate', 'Duplizieren', 'fa fa-copy')
+            ->linkToCrudAction('duplicateNews')
+            ->setCssClass('btn btn-secondary');
+
+        return $actions
+            ->add(Crud::PAGE_INDEX, $duplicate)
+            ->add(Crud::PAGE_DETAIL, $duplicate);
+    }
+
+    public function duplicateNews(): RedirectResponse
+    {
+        $originalNews = $this->getContext()->getEntity()->getInstance();
+        
+        $newNews = new News();
+        $newNews->setTitle($originalNews->getTitle() . ' (Kopie)');
+        $newNews->setSlug($originalNews->getSlug() . '-kopie');
+        $newNews->setContent($originalNews->getContent());
+        $newNews->setExcerpt($originalNews->getExcerpt());
+        $newNews->setImage($originalNews->getImage());
+        $newNews->setMetaDescription($originalNews->getMetaDescription());
+        $newNews->setMetaTitle($originalNews->getMetaTitle());
+        $newNews->setStatus('draft');
+        $newNews->setFeatured($originalNews->isFeatured());
+        $newNews->setAuthor($originalNews->getAuthor());
+        
+        foreach ($originalNews->getCategories() as $category) {
+            $newNews->addCategory($category);
+        }
+        
+        $this->entityManager->persist($newNews);
+        $this->entityManager->flush();
+        
+        $this->addFlash('success', 'News wurde erfolgreich dupliziert.');
+        
+        $url = $this->adminUrlGenerator
+            ->setController(self::class)
+            ->setAction(Action::EDIT)
+            ->setEntityId($newNews->getId())
+            ->generateUrl();
+        
+        return new RedirectResponse($url);
     }
 
     public function configureFilters(Filters $filters): Filters
