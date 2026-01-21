@@ -48,8 +48,7 @@ class PageCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
         $duplicate = Action::new('duplicate', 'Duplizieren', 'fa fa-copy')
-            ->linkToCrudAction('duplicatePage')
-            ->setCssClass('btn btn-secondary');
+            ->linkToCrudAction('duplicatePage');
 
         return $actions
             ->add(Crud::PAGE_INDEX, $duplicate)

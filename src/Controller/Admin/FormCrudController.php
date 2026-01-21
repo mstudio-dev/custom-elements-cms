@@ -42,8 +42,7 @@ class FormCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
         $duplicate = Action::new('duplicate', 'Duplizieren', 'fa fa-copy')
-            ->linkToCrudAction('duplicateForm')
-            ->setCssClass('btn btn-secondary');
+            ->linkToCrudAction('duplicateForm');
 
         return $actions
             ->add(Crud::PAGE_INDEX, $duplicate)

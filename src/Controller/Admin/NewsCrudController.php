@@ -48,8 +48,7 @@ class NewsCrudController extends AbstractCrudController
     public function configureActions(Actions $actions): Actions
     {
         $duplicate = Action::new('duplicate', 'Duplizieren', 'fa fa-copy')
-            ->linkToCrudAction('duplicateNews')
-            ->setCssClass('btn btn-secondary');
+            ->linkToCrudAction('duplicateNews');
 
         return $actions
             ->add(Crud::PAGE_INDEX, $duplicate)
