@@ -30,6 +30,22 @@ class Page
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $metaDescription = null;
 
+    #[ORM\Column]
+    private int $sorting = 0;
+
+    #[ORM\Column]
+    private bool $showInNavigation = true;
+
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Page $parent = null;
+
+    #[ORM\OneToMany(mappedBy: 'parent', targetEntity: self::class)]
+    private Collection $children;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $content = null;
+
     #[ORM\OneToMany(mappedBy: 'page', targetEntity: Element::class)]
     #[ORM\OrderBy(['pageSorting' => 'ASC'])]
     private Collection $elements;
@@ -40,6 +56,7 @@ class Page
     public function __construct()
     {
         $this->elements = new ArrayCollection();
+        $this->children = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -140,6 +157,74 @@ class Page
     public function getEffectiveMetaTitle(): string
     {
         return $this->metaTitle ?? $this->title ?? '';
+    }
+
+    public function getSorting(): int
+    {
+        return $this->sorting;
+    }
+
+    public function setSorting(int $sorting): static
+    {
+        $this->sorting = $sorting;
+        return $this;
+    }
+
+    public function isShowInNavigation(): bool
+    {
+        return $this->showInNavigation;
+    }
+
+    public function setShowInNavigation(bool $showInNavigation): static
+    {
+        $this->showInNavigation = $showInNavigation;
+        return $this;
+    }
+
+    public function getParent(): ?self
+    {
+        return $this->parent;
+    }
+
+    public function setParent(?self $parent): static
+    {
+        $this->parent = $parent;
+        return $this;
+    }
+
+    public function getChildren(): Collection
+    {
+        return $this->children;
+    }
+
+    public function addChild(self $child): static
+    {
+        if (!$this->children->contains($child)) {
+            $this->children->add($child);
+            $child->setParent($this);
+        }
+        return $this;
+    }
+
+    public function removeChild(self $child): static
+    {
+        if ($this->children->removeElement($child)) {
+            if ($child->getParent() === $this) {
+                $child->setParent(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getContent(): ?string
+    {
+        return $this->content;
+    }
+
+    public function setContent(?string $content): static
+    {
+        $this->content = $content;
+        return $this;
     }
 
     public function __toString(): string

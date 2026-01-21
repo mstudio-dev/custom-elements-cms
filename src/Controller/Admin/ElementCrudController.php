@@ -69,7 +69,7 @@ class ElementCrudController extends AbstractCrudController
         $newElement->setPage($originalElement->getPage());
         $newElement->setData($originalElement->getData());
         $newElement->setSorting($originalElement->getSorting() + 1);
-        $newElement->setActive($originalElement->isActive());
+        $newElement->setPublished($originalElement->isPublished());
         
         $this->entityManager->persist($newElement);
         $this->entityManager->flush();

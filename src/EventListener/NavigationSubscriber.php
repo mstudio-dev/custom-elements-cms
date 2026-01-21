@@ -29,8 +29,11 @@ class NavigationSubscriber implements EventSubscriberInterface
             return;
         }
 
-        // Add pages to all Twig templates
-        $pages = $this->pageRepository->findBy([], ['title' => 'ASC']);
+        // Add pages to all Twig templates - only published pages shown in navigation
+        $pages = $this->pageRepository->findBy(
+            ['published' => true, 'showInNavigation' => true],
+            ['sorting' => 'ASC']
+        );
         $this->twig->addGlobal('pages', $pages);
     }
 }

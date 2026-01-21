@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Sync bei Änderungen
             editor.addEventListener('trix-change', function() {
-                textarea.value = editor.value;
+                textarea.value = input.value;
             });
         });
     }

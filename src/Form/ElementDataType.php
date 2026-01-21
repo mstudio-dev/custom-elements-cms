@@ -57,6 +57,19 @@ class ElementDataType extends AbstractType
                     ]);
                     break;
 
+                case 'richtext':
+                    $builder->add($fieldName, TextareaType::class, [
+                        'label' => $label,
+                        'required' => $required,
+                        'mapped' => false,
+                        'data' => $data[$fieldName] ?? '',
+                        'attr' => [
+                            'data-richtext' => 'true',
+                            'rows' => 10
+                        ],
+                    ]);
+                    break;
+
                 case 'textarea':
                     $builder->add($fieldName, TextareaType::class, [
                         'label' => $label,
@@ -112,6 +125,9 @@ class ElementDataType extends AbstractType
                 // Media-Felder: Nur die ID speichern
                 if (($fieldType === 'image' || $fieldType === 'media') && $fieldData instanceof Media) {
                     $data[$fieldName] = $fieldData->getId();
+                } elseif ($fieldType === 'richtext') {
+                    // Richtext: HTML-Entities dekodieren, damit echtes HTML gespeichert wird
+                    $data[$fieldName] = html_entity_decode($fieldData, ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 } else {
                     $data[$fieldName] = $fieldData;
                 }

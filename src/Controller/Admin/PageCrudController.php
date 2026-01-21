@@ -12,6 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\SlugField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
@@ -68,6 +69,8 @@ class PageCrudController extends AbstractCrudController
         $newPage->setPublished(false);
         $newPage->setShowInNavigation($originalPage->isShowInNavigation());
         $newPage->setParent($originalPage->getParent());
+        $newPage->setSorting($originalPage->getSorting());
+        $newPage->setContent($originalPage->getContent());
         
         $this->entityManager->persist($newPage);
         $this->entityManager->flush();
@@ -103,6 +106,13 @@ class PageCrudController extends AbstractCrudController
             ->setTargetFieldName('title')
             ->setColumns(6)
             ->setHelp('Wird automatisch aus dem Titel generiert');
+        
+        yield IntegerField::new('sorting', 'Sortierung')
+            ->setHelp('Reihenfolge in der Navigation (0 = erste Position)')
+            ->hideOnIndex();
+        
+        yield BooleanField::new('showInNavigation', 'In Navigation anzeigen')
+            ->setHelp('Soll diese Seite im Hauptmenü erscheinen?');
         
         yield BooleanField::new('published', 'Veröffentlicht')
             ->setHelp('Nur veröffentlichte Seiten sind im Frontend sichtbar');
